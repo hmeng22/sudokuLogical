@@ -1,3 +1,27 @@
+## SudokuLogical
+
+```
+>>> Index
+	index from 0 to 80. It is 9x9 from Top-Left to Bottom-Right, 81 in Total.
+
+>>> Coordinates
+	(X, Y, Z) represents Row X, Column Y, Block Z.
+
+>>> Candidates
+	[] contains the possible candidates
+	
+>>> Candidates Indexes
+	candidatesIndexes contains the possible positions of Numbers for each Row, Col, Block.
+```
+
+```
+*** Expample
+
+
+```
+
+
+
 ## Task List
 
 - [x] Naked Singles

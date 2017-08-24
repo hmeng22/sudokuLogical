@@ -591,7 +591,7 @@ Object.assign(Matrix.prototype, {
     this.updateCandidatesIndexes();
   },
 
-  // interactions
+  // intersections
   findPointingPairs: function() {
     for (var i = 0; i < this.length; i++) {
       var cIes = this.rowCandidatesIndexes[i];

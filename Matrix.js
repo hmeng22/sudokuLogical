@@ -69,6 +69,8 @@ Object.assign(Matrix.prototype, {
     this.findPointingPairs();
 
     this.findXWings();
+
+    this.findYWings();
   },
 
   // init cubes
@@ -477,7 +479,7 @@ Object.assign(Matrix.prototype, {
                           this.XYToIndex(i, n),
                           this.XYToIndex(i, o)
                         ],
-                        value: _.clone(possibleTriples[i])
+                        value: _.clone(possibleTriples[pt])
                       });
                     }
                   }
@@ -501,7 +503,7 @@ Object.assign(Matrix.prototype, {
                           this.XYToIndex(n, i),
                           this.XYToIndex(o, i)
                         ],
-                        value: _.clone(possibleTriples[i])
+                        value: _.clone(possibleTriples[pt])
                       });
                     }
                   }
@@ -526,7 +528,7 @@ Object.assign(Matrix.prototype, {
                         index: [
                           zblock[m], zblock[n], zblock[o]
                         ],
-                        value: _.clone(possibleTriples[i])
+                        value: _.clone(possibleTriples[pt])
                       });
                     }
                   }
@@ -538,7 +540,39 @@ Object.assign(Matrix.prototype, {
       }
     }
 
-    return triples;
+    // nakedTriples combinations
+    // {A,B,C}, {A,B,C}, {A,B,C}
+    // {A,B,C}, {A,B,C}, {A,B}
+    // {A,B,C}, {A,B}, {A,C}
+    // {A,B}, {B,C}, {A,C},
+
+    var realTriples = [];
+    for (var m = 0, ml = triples.length; m < ml; m++) {
+      ac = this.cubeFromIndex(triples[m].index[0]);
+      bc = this.cubeFromIndex(triples[m].index[1]);
+      cc = this.cubeFromIndex(triples[m].index[2]);
+
+      var isTriple = false;
+      if (ac.candidates.length == 3 && bc.candidates.length == 3 && cc.candidates.length == 3) {
+        isTriple = true;
+      } else if (_.intersection(ac.candidates, bc.candidates, cc.candidates).length == 2) {
+        isTriple = true;
+      } else if ((_.intersection(ac.candidates, bc.candidates).length == 2 && _.intersection(ac.candidates, cc.candidates).length == 2) || (_.intersection(ac.candidates, bc.candidates).length == 2 && _.intersection(bc.candidates, cc.candidates).length == 2)) {
+        isTriple = true;
+      } else if (ac.candidates.length == 2 && bc.candidates.length == 2 && cc.candidates.length == 2) {
+        if (_.intersection(ac.candidates, bc.candidates).length == 1 && _.intersection(ac.candidates, cc.candidates).length == 1 && _.intersection(bc.candidates, cc.candidates).length == 1) {
+          isTriple = true;
+        }
+      } else {
+        isTriple = false;
+      }
+
+      if (isTriple) {
+        realTriples.push(_.clone(triples[m]));
+      }
+    }
+
+    return realTriples;
   },
   hiddenTriples: function(candidatesIndexes) {
     var triples = [];
@@ -567,7 +601,6 @@ Object.assign(Matrix.prototype, {
     }
     return triples;
   },
-
   findTriples: function() {
     var triples;
     triples = _.uniqWith(_.concat(this.nakedTriples('h'), this.hiddenTriples(this.rowCandidatesIndexes)), _.isEqual);
@@ -712,7 +745,6 @@ Object.assign(Matrix.prototype, {
 
     return twoCandidates;
   },
-
   findYWings: function() {
     var yWings = [];
 

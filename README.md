@@ -35,6 +35,9 @@ matrix.findPointingPairs();
 
 // X-Wings
 matrix.findXWings();
+
+// Y-Wings
+matrix.findYWings();
 ```
 
 ```

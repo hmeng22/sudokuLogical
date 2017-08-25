@@ -8,7 +8,7 @@
 - [x] Hidden Triples
 - [x] Pointing Pairs
 - [x] X-Wing
-- [ ] Y-Wing
+- [x] Y-Wing
 - [ ] XYZ-Wing
 
 

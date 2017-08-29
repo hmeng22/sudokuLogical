@@ -9,7 +9,7 @@
 - [x] Pointing Pairs
 - [x] X-Wing
 - [x] Y-Wing
-- [ ] XYZ-Wing
+- [x] XYZ-Wing
 
 
 

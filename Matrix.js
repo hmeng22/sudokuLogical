@@ -862,7 +862,7 @@ Object.assign(Matrix.prototype, {
             diffCenterRight = _.difference(center.value, right.value);
 
             if (commonCenterRight.length == 2 && diffCenterRight.length == 1 && diffCenterLeft[0] != diffCenterRight[0]) {
-              console.log('find a XYZ-Wing : ', center.index, left.index, right.index);
+              // console.log('XYZ-Wing : ', center.index, left.index, right.index);
               xyzWings.push([center, left, right]);
             }
           }
@@ -873,7 +873,7 @@ Object.assign(Matrix.prototype, {
     var xyzWingsLength = xyzWings.length;
     for (var i = 0; i < xyzWingsLength; i++) {
       var xyzwing = xyzWings[i];
-
+      console.log('XYZ-Wing : ', ywing[0].index, ywing[0].value, ywing[1].index, ywing[1].value, ywing[2].index, ywing[2].value);
       var commonLeftRight = _.intersection(xyzwing[1].value, xyzwing[2].value);
 
       for (var m = 0; m < this.size; m++) {

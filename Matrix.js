@@ -71,6 +71,8 @@ Object.assign(Matrix.prototype, {
     this.findXWings();
 
     this.findYWings();
+    
+    this.findXYZWings();
   },
 
   // init cubes

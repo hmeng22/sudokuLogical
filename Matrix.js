@@ -873,7 +873,7 @@ Object.assign(Matrix.prototype, {
     var xyzWingsLength = xyzWings.length;
     for (var i = 0; i < xyzWingsLength; i++) {
       var xyzwing = xyzWings[i];
-      console.log('XYZ-Wing : ', ywing[0].index, ywing[0].value, ywing[1].index, ywing[1].value, ywing[2].index, ywing[2].value);
+      console.log('XYZ-Wing : ', xyzwing[0].index, xyzwing[0].value, xyzwing[1].index, xyzwing[1].value, xyzwing[2].index, xyzwing[2].value);
       var commonLeftRight = _.intersection(xyzwing[1].value, xyzwing[2].value);
 
       for (var m = 0; m < this.size; m++) {

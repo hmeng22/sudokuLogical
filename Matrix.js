@@ -223,6 +223,9 @@ Object.assign(Matrix.prototype, {
 
     return true;
   },
+  isSameXorYorZ: function(indexes) {
+    return this.isSameX(indexes) || this.isSameY(indexes) || this.isSameZ(indexes);
+  },
 
   isSolved: function() {
     for (var i = 0; i < this.size; i++) {
@@ -680,6 +683,7 @@ Object.assign(Matrix.prototype, {
               if (this.isSameY([aI, aJ]) && this.isSameY([bI, bJ])) {
                 console.log('Row X-Wing : ', cIesI[m], cIesJ[m], m + 1);
                 this.eliminateHVBCubesCandidate(aI, m + 1, false, true, false, _.concat(cIesI[m], cIesJ[m]));
+                this.eliminateHVBCubesCandidate(bI, m + 1, false, true, false, _.concat(cIesI[m], cIesJ[m]));
               }
             }
           }
@@ -699,6 +703,7 @@ Object.assign(Matrix.prototype, {
               if (this.isSameX([aI, aJ]) && this.isSameX([bI, bJ])) {
                 console.log('Col X-Wing : ', cIesI[m], cIesJ[m], m + 1);
                 this.eliminateHVBCubesCandidate(aI, m + 1, true, false, false, _.concat(cIesI[m], cIesJ[m]));
+                this.eliminateHVBCubesCandidate(bI, m + 1, true, false, false, _.concat(cIesI[m], cIesJ[m]));
               }
             }
           }
@@ -710,32 +715,32 @@ Object.assign(Matrix.prototype, {
   },
 
   // Y-Wing
-  nakedTwoCandidates: function(x, y, HVB) {
-    var twoCandidates = [];
+  nakedNCandidates: function(x, y, N = 2, HVB) {
+    var NCandidates = [];
 
     for (var i = 0; i < this.length; i++) {
       var ac;
       var zblock = this.ZToIndexes(this.XYToZ(x, y));
       if (HVB == 'horizontal' || HVB == 'h' || HVB == 'H') {
         ac = this.cubeFromXY(x, i);
-        if (ac.candidates.length == 2) {
-          twoCandidates.push({
+        if (ac.candidates.length == N) {
+          NCandidates.push({
             index: this.XYToIndex(x, i),
             value: _.clone(ac.candidates)
           });
         }
       } else if (HVB == 'vertical' || HVB == 'v' || HVB == 'V') {
         ac = this.cubeFromXY(i, y);
-        if (ac.candidates.length == 2) {
-          twoCandidates.push({
+        if (ac.candidates.length == N) {
+          NCandidates.push({
             index: this.XYToIndex(i, y),
             value: _.clone(ac.candidates)
           });
         }
       } else if (HVB == 'block' || HVB == 'b' || HVB == 'B') {
         ac = this.cubeFromIndex(zblock[i]);
-        if (ac.candidates.length == 2) {
-          twoCandidates.push({
+        if (ac.candidates.length == N) {
+          NCandidates.push({
             index: zblock[i],
             value: _.clone(ac.candidates)
           });
@@ -743,7 +748,7 @@ Object.assign(Matrix.prototype, {
       }
     }
 
-    return twoCandidates;
+    return NCandidates;
   },
   findYWings: function() {
     var yWings = [];
@@ -760,7 +765,7 @@ Object.assign(Matrix.prototype, {
 
     for (var i = 0; i < this.length; i++) {
       for (var j = 0; j < this.length; j++) {
-        var twoCandidates = _.uniqWith(_.concat(this.nakedTwoCandidates(i, j, 'h'), this.nakedTwoCandidates(i, j, 'v'), this.nakedTwoCandidates(i, j, 'b')), _.isEqual);
+        var twoCandidates = _.uniqWith(_.concat(this.nakedNCandidates(i, j, 2, 'h'), this.nakedNCandidates(i, j, 2, 'v'), this.nakedNCandidates(i, j, 2, 'b')), _.isEqual);
         var twoCandidatesLength = twoCandidates.length;
         for (var m = 0; m < twoCandidatesLength; m++) {
           var centerLeftRight = [];
@@ -812,6 +817,72 @@ Object.assign(Matrix.prototype, {
           var m1 = [m, ywing[1].index];
           var m2 = [m, ywing[2].index];
           if ((this.isSameX(m1) || this.isSameY(m1) || this.isSameZ(m1)) && (this.isSameX(m2) || this.isSameY(m2) || this.isSameZ(m2))) {
+            this.eliminateHVBCubesCandidate(m, commonLeftRight[0], false, false, false);
+          }
+        }
+      }
+    }
+
+    this.updateCandidatesIndexes();
+  },
+
+  // XYZ-Wing
+  findXYZWings: function() {
+    var xyzWings = [];
+
+    var center;
+    var left;
+    var right;
+    var commonCenterLeft;
+    var commonCenterRight;
+    var diffCenterLeft;
+    var diffCenterRight;
+
+    var threeCandidates = [];
+    for (var i = 0; i < this.length; i++) {
+      var ixyz = this.indexToXYZ(i * 9);
+      threeCandidates = _.concat(threeCandidates, this.nakedNCandidates(ixyz.x, ixyz.y, 3, 'h'));
+    }
+    var threeCandidatesLength = threeCandidates.length;
+    for (var m = 0; m < threeCandidatesLength; m++) {
+      center = threeCandidates[m];
+      var centerXYZ = this.indexToXYZ(center.index);
+
+      var centerTwoCandidates = _.uniqWith(_.concat(this.nakedNCandidates(centerXYZ.x, centerXYZ.y, 2, 'h'), this.nakedNCandidates(centerXYZ.x, centerXYZ.y, 2, 'v'), this.nakedNCandidates(centerXYZ.x, centerXYZ.y, 2, 'b')), _.isEqual);
+      var centerTwoCandidatesLength = centerTwoCandidates.length;
+      for (var n = 0; n < centerTwoCandidatesLength; n++) {
+        left = centerTwoCandidates[n];
+        commonCenterLeft = _.intersection(center.value, left.value);
+        diffCenterLeft = _.difference(center.value, left.value);
+
+        if (commonCenterLeft.length == 2 && diffCenterLeft.length == 1) {
+          for (var o = n + 1; o < centerTwoCandidatesLength; o++) {
+            right = centerTwoCandidates[o];
+            commonCenterRight = _.intersection(center.value, right.value);
+            diffCenterRight = _.difference(center.value, right.value);
+
+            if (commonCenterRight.length == 2 && diffCenterRight.length == 1 && diffCenterLeft[0] != diffCenterRight[0]) {
+              console.log('find a XYZ-Wing : ', center.index, left.index, right.index);
+              xyzWings.push([center, left, right]);
+            }
+          }
+        }
+      }
+    }
+
+    var xyzWingsLength = xyzWings.length;
+    for (var i = 0; i < xyzWingsLength; i++) {
+      var xyzwing = xyzWings[i];
+
+      var commonLeftRight = _.intersection(xyzwing[1].value, xyzwing[2].value);
+
+      for (var m = 0; m < this.size; m++) {
+        if (m != xyzwing[0].index && m != xyzwing[1].index && m != xyzwing[2].index) {
+          var m0 = [m, xyzwing[0].index];
+          var m1 = [m, xyzwing[1].index];
+          var m2 = [m, xyzwing[2].index];
+
+          if (this.isSameXorYorZ(m0) && this.isSameXorYorZ(m1) && this.isSameXorYorZ(m2)) {
             this.eliminateHVBCubesCandidate(m, commonLeftRight[0], false, false, false);
           }
         }

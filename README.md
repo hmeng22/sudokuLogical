@@ -38,6 +38,9 @@ matrix.findXWings();
 
 // Y-Wings
 matrix.findYWings();
+
+// XYZ-Wings
+matrix.findXYZWings();
 ```
 
 ```
